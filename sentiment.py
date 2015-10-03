@@ -64,7 +64,7 @@ def get_word_sentiment(word):
     """
     return make_sentiment(word_sentiments.get(word))
 
-def analyze_tweet_sentiment(tweet):
+def analyze_site_sentiment(tweet):
     """Return a sentiment representing the degree of positive or negative
     feeling in a given text segments
     If no words in the tweet have a sentiment value, return
@@ -89,3 +89,28 @@ def analyze_tweet_sentiment(tweet):
     if len(sentiment_vals) == 0:
         return make_sentiment(None)
     return make_sentiment(sum(sentiment_vals) / len(sentiment_vals))
+
+def average_sentiments(articles_by_site):
+    """Calculate the average sentiment of all articles by averaging over all
+    the articles from each site. Return the result as a dictionary from site
+    names to average sentiment values (numbers).
+
+    If a site has no articles with sentiment values, leave it out of the
+    dictionary entirely. Do NOT include sites with no articles, or with articles
+    that have no sentiment, as 0. 0 represents neutral sentiment, not unknown
+    sentiment.
+
+    Arguments:
+    articles_by_site -- A dictionary from site names to lists of articles
+    """
+    avg_site_sentiment = {}
+    for each_site in articles_by_site:
+        site_articles = articles_by_site[each_site]
+        sentiments = [sentiment_value(analyze_site_sentiment(each_site)) \
+                    for each_site in site_articles \
+                    if has_sentiment(analyze_site_sentiment(each_site))]
+        if len(sentiments) == 0:
+            continue
+        avg = sum(sentiments)/len(sentiments)
+        avg_site_sentiment[each_site] = avg
+    return avg_site_sentiment
